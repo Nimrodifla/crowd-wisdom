@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="icon" type="image/x-icon" href="https://www.onlygfx.com/wp-content/uploads/2022/04/brain-icon-3.png">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crowd Wisdom</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <h3 id="title">🌐 Crowd Wisdom 🧠</h3>
+    <div id="pregame" class="mode">
+        <p>Enter player names & question:</p>
+        <input id="playerNames" placeholder="Dolce,Gabana,MatzaBright..."/><br>
+        <input id="creativeQuestion" placeholder="Enter Question Here"/><br>
+        <input id="creative" type="checkbox"/><span>use database question</span><br>
+        <button onclick="startGame()">Start Game</button>
+    </div>
+    <div id="game" class="mode">
+        <h1 id="question" class="question">#question#</h1>
+        <div id="playerInputDiv">
+            <h3 id="currentPlayerName">loading...</h3>
+            <input id="playerInput" type="number"/><br>
+            <button onclick="submitAns()">Submit</button>
+        </div>
+    </div>
+    <div id="postgame_creative" class="mode">
+        <h3>The Average Is</h3>
+        <h1 id="creative_avg">loading...</h1>
+        <button onclick="showAnswer()">Show Answer</button><br><br>
+        <button onclick="location.reload()">Play Again</button>
+    </div>
+    <div id="postgame" class="mode">
+        <h3>The Answer Is</h3>
+        <h1>#answer#</h1>
+        <div class="horizontalDiv">
+            <div class="res">
+                <span id="avg">69</span><br>
+                AVG
+            </div>
+            <div class="res">
+                <span id="dis">69</span><br>
+                DIS
+            </div>
+        </div>
+        <p id="gameMsg">loading...</p><br>
+        <button onclick="location.reload()">Play Again</button>
+    </div>
+</body>
+<style>
+
+    .horizontalDiv {
+        display: flex;
+        justify-content: center;
+    }
+
+    .res {
+        background-color: #FC9F10;
+        padding: 10px;
+        border-style: none;
+        border-radius: 5px;
+        width: fit-content;
+        margin: 5px;
+        font-weight: bold;
+    }
+
+    #title {
+        background-color: #FC9F10;
+        padding: 20px;
+        margin: 0;
+        box-shadow: 10px 10px 40px -2px rgba(0,0,0,0.3);
+        font-family: 'Playfair Display', serif;
+    }
+
+    .question {
+        font-family: 'Playfair Display', serif;
+    }
+
+    .mode {
+        margin: 0;
+        padding: 20px;
+    }
+
+    body {
+        text-align: center;
+        font-family: 'Noto Sans', sans-serif;
+        margin: 0;
+    }
+
+    button {
+        font-family: 'Noto Sans', sans-serif;
+    }
+
+    input {
+        font-family: 'Noto Sans', sans-serif;
+        padding: 5px;
+    }
+
+    #game {
+        display: none;
+    }
+
+    #postgame {
+        display: none;
+    }
+
+    #postgame_creative {
+        display: none;
+    }
+
+    .dis {
+        font-style: italic;
+        color: rgb(47, 255, 134);
+    }
+</style>
+<script>
+    let question = "#question#";
+    let answer = parseInt("#answer#");
+    let currentPlayerIndex = 0;
+    let playersAnswers = [];
+    let playerNames = ['Matzi', 'Bright', 'Tubi', 'Nelly'];
+
+    const displayShow = 'block';
+
+    let GAME_MODE_CREATIVE = true;
+
+    function showAnswer() {
+        openResults(question);
+    }
+
+    function createSearchUrlKeywords(keyword) {
+        return "https://www.google.com/search?q=" + keyword.replace(' ', '+');
+    }
+
+    function openResults(question) {
+        open(createSearchUrlKeywords(question));
+    }
+
+    function showPlayerNamePlaying(name) {
+        let txt = 'Now guessing: ' + name;
+        document.getElementById('currentPlayerName').innerHTML = txt;
+    }
+
+    function startGame() {
+        let mode_db = document.getElementById('creative').checked;
+        GAME_MODE_CREATIVE = !mode_db;
+        if (!mode_db)
+            question = document.getElementById('creativeQuestion').value;
+        
+        document.getElementById('question').innerHTML = question;
+        
+        playerNames = document.getElementById('playerNames').value.toString().split(',');
+        playersCount = playerNames.length;
+
+        // switch screens
+        document.getElementById('pregame').style.display = 'none';
+        document.getElementById('game').style.display = displayShow;
+
+        showPlayerNamePlaying(playerNames[0]);
+    }
+    
+    function submitAns() {
+        let p_answer = parseInt(document.getElementById('playerInput').value);
+        playersAnswers.push(parseInt(p_answer));
+
+        // check if it is the last player answering
+        if (playersCount == undefined) {
+            alert('error. player count isnt defind');
+            location.reload();
+        }
+
+        if (currentPlayerIndex == playersCount - 1) {
+            // last player
+            // do avg
+            let sum = 0;
+            for (let i = 0; i < playersAnswers.length; i++) {
+                sum += playersAnswers[i];
+            }
+
+            let avg = parseInt(sum / playersAnswers.length);
+
+            if (GAME_MODE_CREATIVE)
+            {
+                document.getElementById('creative_avg').innerHTML = avg;
+
+                // switch screens
+                document.getElementById('game').style.display = 'none';
+                document.getElementById('postgame_creative').style.display = displayShow;
+            }
+            else {
+                // find the closest player to the answer
+                let pName;
+                let pAns;
+                
+                let index = 0;
+                let min = Math.abs(playersAnswers[0] - answer);
+                for (let i = 0; i < playersAnswers.length; i++) {
+                    let temp = Math.abs(playersAnswers[i] - answer);
+                    if (temp < min)
+                    {
+                        min = temp;
+                        index = i;
+                    }
+                }
+
+                pName = playerNames[index];
+                pAns = playersAnswers[index];
+
+                let distance = parseInt(Math.abs(answer - avg));
+
+                document.getElementById('avg').innerHTML = avg;
+                document.getElementById('dis').innerHTML = distance;
+                document.getElementById('gameMsg').innerHTML = '<strong>' + pName + '</strong> was the closest with his answer of: ' + pAns;
+
+                // switch screens
+                document.getElementById('game').style.display = 'none';
+                document.getElementById('postgame').style.display = displayShow;
+            }
+        }
+        else {
+            currentPlayerIndex++;
+            showPlayerNamePlaying(playerNames[currentPlayerIndex]);
+            document.getElementById('playerInput').value = 69;
+        }
+    }
+</script>
+</html>
