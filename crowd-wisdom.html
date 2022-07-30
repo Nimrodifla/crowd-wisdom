@@ -20,21 +20,23 @@
         <input id="playerNames" placeholder="Dolce,Gabana,MatzaBright..."/><br>
         <input id="creativeQuestion" placeholder="Enter Question Here"/><br>
         <input id="creative" type="checkbox"/><span>use database question</span><br>
-        <button onclick="startGame()">Start Game</button>
+        <button onclick="startGame()">Start Game</button><br>
+        <button onclick="backToStart()">Reset</button>
     </div>
     <div id="game" class="mode">
         <h1 id="question" class="question">#question#</h1>
         <div id="playerInputDiv">
             <h3 id="currentPlayerName">loading...</h3>
-            <input id="playerInput" type="number"/><br>
+            <input id="playerInput" type="number" placeholder="make a guess..."/><br>
             <button onclick="submitAns()">Submit</button>
         </div>
     </div>
     <div id="postgame_creative" class="mode">
         <h3>The Average Is</h3>
         <h1 id="creative_avg">loading...</h1>
-        <button onclick="showAnswer()">Show Answer</button><br><br>
-        <button onclick="location.reload()">Play Again</button>
+        <button onclick="showAnswer()">Show Answer</button><br>
+        <button onclick="playAgain()">Play Again</button><br>
+        <button onclick="backToStart()">Back To Start Screen</button>
     </div>
     <div id="postgame" class="mode">
         <h3>The Answer Is</h3>
@@ -95,11 +97,19 @@
 
     button {
         font-family: 'Noto Sans', sans-serif;
+        margin-top: 10px;
+        padding: 10px;
+        font-size: larger;
+        background-color: #FC9F10;
+        border-style: none;
+        border-radius: 5px;
     }
 
     input {
         font-family: 'Noto Sans', sans-serif;
         padding: 5px;
+        width: 90%;
+        font-size: larger;
     }
 
     #game {
@@ -118,17 +128,34 @@
         font-style: italic;
         color: rgb(47, 255, 134);
     }
+
+    #creative {
+        width: auto;
+    }
 </style>
 <script>
+
     let question = "#question#";
     let answer = parseInt("#answer#");
     let currentPlayerIndex = 0;
     let playersAnswers = [];
-    let playerNames = ['Matzi', 'Bright', 'Tubi', 'Nelly'];
-
+    let playerNames = #playerNames#;
+    
     const displayShow = 'block';
-
+    
     let GAME_MODE_CREATIVE = true;
+    
+    if (playerNames != undefined) {
+        document.getElementById('playerNames').style.display = 'none';
+    }
+
+    function playAgain() {
+        location.href = 'http://' + location.hostname + '/' + playerNames.join('&');
+    }
+
+    function backToStart() {
+        location.href = 'http://' + location.hostname;
+    }
 
     function showAnswer() {
         openResults(question);
@@ -150,12 +177,25 @@
     function startGame() {
         let mode_db = document.getElementById('creative').checked;
         GAME_MODE_CREATIVE = !mode_db;
-        if (!mode_db)
+        if (!mode_db) {
             question = document.getElementById('creativeQuestion').value;
+
+            // remove all spaces in the end of the question
+            while (question.endsWith(' ')) {
+                question = question.substr(0, question.length - 1);
+            }
+
+            // add '?' at the end if there isnt one
+            if (question.endsWith('?') == false) {
+                question += '?';
+            }
+        }
         
         document.getElementById('question').innerHTML = question;
         
-        playerNames = document.getElementById('playerNames').value.toString().split(',');
+        if (playerNames == undefined)
+            playerNames = document.getElementById('playerNames').value.toString().split(',');
+        
         playersCount = playerNames.length;
 
         // switch screens
@@ -166,7 +206,13 @@
     }
     
     function submitAns() {
-        let p_answer = parseInt(document.getElementById('playerInput').value);
+        let temp = document.getElementById('playerInput').value;
+        // remove all ','
+        while (temp.includes(',')) {
+            temp = temp.replace(',', '');
+        }
+
+        let p_answer = parseInt(temp);
         playersAnswers.push(parseInt(p_answer));
 
         // check if it is the last player answering
@@ -226,7 +272,7 @@
         else {
             currentPlayerIndex++;
             showPlayerNamePlaying(playerNames[currentPlayerIndex]);
-            document.getElementById('playerInput').value = 69;
+            document.getElementById('playerInput').value = '';
         }
     }
 </script>

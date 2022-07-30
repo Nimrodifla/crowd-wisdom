@@ -17,7 +17,7 @@ function addQuestionToTheDB(question) {
     // to do
 }
 
-app.get('/', (req, res)=>{
+function defaultProcess(req, res, namesJson) {
     // get random q & a
     let questions = Object.keys(qanda);
     let pair_index = Math.floor(Math.random() * questions.length);
@@ -28,8 +28,20 @@ app.get('/', (req, res)=>{
 
     html = repHtml(html, '#question#', question);
     html = repHtml(html, '#answer#', answer);
+    html = repHtml(html, '#playerNames#', namesJson);
 
     res.send(html);
+}
+
+app.get('/', (req, res)=>{
+    defaultProcess(req, res, 'undefined');
+});
+
+app.get('/:names', (req, res) =>{
+    let names = req.params.names;
+    names = names.split('&');
+    let jsonNames = JSON.stringify(names);
+    defaultProcess(req, res, jsonNames);
 });
 
 app.listen(PORT, (err)=>{
