@@ -22,7 +22,8 @@
         <p>Enter player names & question:</p>
         <input id="playerNames" placeholder="Dolce,Gabana,MatzaBright..."/><br>
         <input id="creativeQuestion" placeholder="Enter Question Here"/><br>
-        <input id="creative" type="checkbox"/><span>use database question</span><br>
+        <div style="display: none;"><input id="creative" type="checkbox"/><span>use database question</span><br></div>
+        <br><br>
         <button onclick="startGame()">Start Game</button><br>
         <button onclick="backToStart()">Reset</button>
     </div>
@@ -31,12 +32,15 @@
         <div id="playerInputDiv">
             <h3 id="currentPlayerName">loading...</h3>
             <input id="playerInput" placeholder="make a guess..."/><br>
-            <button onclick="submitAns()">Submit</button>
+            <button onclick="submitAns()">Guess</button>
         </div>
     </div>
     <div id="postgame_creative" class="mode">
-        <h3>The Average Is</h3>
+        <p>Your Average Is</p>
         <h1 id="creative_avg">loading...</h1>
+        <p id="playersGuesses">
+            loading...
+        </p>
         <button onclick="showAnswer()">Show Answer</button><br>
         <button onclick="playAgain()">Play Again</button><br>
         <button onclick="backToStart()">Back To Start Screen</button>
@@ -67,7 +71,7 @@
     }
 
     .mainHeader {
-        font-size:x-large;
+        font-size: 2rem;
     }
 
     .horizontalDiv {
@@ -128,6 +132,18 @@
         border-width: 3px;
         border-color: #FC9F10;
         border-style: solid;
+        outline-color: #ffd089;
+        margin-top: 10px;
+    }
+
+    .inputAnimationA {
+        background-color: #FC9F10;
+    }
+
+    .inputAnimationB {
+        transition-duration: 1s;
+        -webkit-animation-duration: 1s;
+        background-color: white;
     }
 
     #game {
@@ -150,6 +166,28 @@
     #creative {
         width: auto;
     }
+
+    #creative_avg {
+        font-weight: bold;
+        font-size: 3rem;
+        margin-top: 0px;
+    }
+
+    .name {
+        color: #FC9F10;
+        font-family: 'Playfair Display', serif;
+        font-size: 2rem;
+    }
+
+    .playerNameGuess {
+        font-weight: bolder;
+        color: #FC9F10;
+    }
+
+    #playersGuesses {
+        font-size: 1.5rem;
+    }
+
 </style>
 <script>
 
@@ -188,110 +226,149 @@
     }
 
     function showPlayerNamePlaying(name) {
-        let txt = 'Now guessing: ' + name;
+        let txt = 'Now guessing: <span class="name">' + name + '</span>';
         document.getElementById('currentPlayerName').innerHTML = txt;
     }
 
     function startGame() {
-        let mode_db = document.getElementById('creative').checked;
-        GAME_MODE_CREATIVE = !mode_db;
-        if (!mode_db) {
-            question = document.getElementById('creativeQuestion').value;
+        const playerNamesElem = document.getElementById('playerNames');
+        const questionElem = document.getElementById('creativeQuestion');
 
-            // remove all spaces in the end of the question
-            while (question.endsWith(' ')) {
-                question = question.substr(0, question.length - 1);
-            }
+        if (playerNamesElem.value != '' && questionElem.value != '')
+        {
+            let mode_db = document.getElementById('creative').checked;
+            GAME_MODE_CREATIVE = !mode_db;
+            if (GAME_MODE_CREATIVE) {
+                question = questionElem.value;
 
-            // add '?' at the end if there isnt one
-            if (question.endsWith('?') == false) {
-                question += '?';
+                // remove all spaces in the end of the question
+                while (question.endsWith(' ')) {
+                    question = question.substr(0, question.length - 1);
+                }
+
+                // add '?' at the end if there isnt one
+                if (question.endsWith('?') == false) {
+                    question += '?';
+                }
             }
+            
+            document.getElementById('question').innerHTML = question;
+            
+            if (playerNames == undefined)
+                playerNames = playerNamesElem.value.toString().split(',');
+            
+            playersCount = playerNames.length;
+
+            // switch screens
+            document.getElementById('pregame').style.display = 'none';
+            document.getElementById('game').style.display = displayShow;
+
+            showPlayerNamePlaying(playerNames[0]);
         }
-        
-        document.getElementById('question').innerHTML = question;
-        
-        if (playerNames == undefined)
-            playerNames = document.getElementById('playerNames').value.toString().split(',');
-        
-        playersCount = playerNames.length;
-
-        // switch screens
-        document.getElementById('pregame').style.display = 'none';
-        document.getElementById('game').style.display = displayShow;
-
-        showPlayerNamePlaying(playerNames[0]);
     }
     
     function submitAns() {
         let temp = document.getElementById('playerInput').value;
-        // remove all ','
-        while (temp.includes(',')) {
-            temp = temp.replace(',', '');
-        }
 
-        let p_answer = parseInt(temp);
-        playersAnswers.push(parseInt(p_answer));
-
-        // check if it is the last player answering
-        if (playersCount == undefined) {
-            alert('error. player count isnt defind');
-            location.reload();
-        }
-
-        if (currentPlayerIndex == playersCount - 1) {
-            // last player
-            // do avg
-            let sum = 0;
-            for (let i = 0; i < playersAnswers.length; i++) {
-                sum += playersAnswers[i];
+        if (temp != '') {    
+            // remove all ','
+            while (temp.includes(',')) {
+                temp = temp.replace(',', '');
             }
 
-            let avg = parseInt(sum / playersAnswers.length);
+            let p_answer = parseInt(temp);
+            playersAnswers.push(parseInt(p_answer));
 
-            if (GAME_MODE_CREATIVE)
-            {
-                document.getElementById('creative_avg').innerHTML = avg;
-
-                // switch screens
-                document.getElementById('game').style.display = 'none';
-                document.getElementById('postgame_creative').style.display = displayShow;
+            // check if it is the last player answering
+            if (playersCount == undefined) {
+                alert('error. player count isnt defind');
+                location.reload();
             }
-            else {
-                // find the closest player to the answer
-                let pName;
-                let pAns;
-                
-                let index = 0;
-                let min = Math.abs(playersAnswers[0] - answer);
+
+            // last player answering
+            if (currentPlayerIndex == playersCount - 1) {
+                // last player
+                // do avg
+                let sum = 0;
                 for (let i = 0; i < playersAnswers.length; i++) {
-                    let temp = Math.abs(playersAnswers[i] - answer);
-                    if (temp < min)
-                    {
-                        min = temp;
-                        index = i;
-                    }
+                    sum += playersAnswers[i];
                 }
 
-                pName = playerNames[index];
-                pAns = playersAnswers[index];
+                let avg = parseInt(sum / playersAnswers.length);
 
-                let distance = parseInt(Math.abs(answer - avg));
+                if (GAME_MODE_CREATIVE)
+                {
+                    document.getElementById('creative_avg').innerHTML = avg;
 
-                document.getElementById('avg').innerHTML = avg;
-                document.getElementById('dis').innerHTML = distance;
-                document.getElementById('gameMsg').innerHTML = '<strong>' + pName + '</strong> was the closest with his answer of: ' + pAns;
+                    // make name & guess arr
+                    let nameAnswerArr = [];
+                    for (let i = 0; i < playerNames.length; i++) {
+                        nameAnswerArr.push({'name': playerNames[i], 'guess': playersAnswers[i]});
+                    }
+                    // sort players by answers
+                    for (let i = 0; i < nameAnswerArr.length; i++) {
+                        for (let j = 0; j < nameAnswerArr.length - i - 1; j++) {
+                            if (nameAnswerArr[j].guess > nameAnswerArr[j+1].guess) {
+                                // swap
+                                let temp = nameAnswerArr[j];
+                                nameAnswerArr[j] = nameAnswerArr[j+1];
+                                nameAnswerArr[j+1] = temp;
+                            }
+                        }
+                    }
+                    // show player's gueeses
+                    let txt = '';
+                    for (let i = 0; i < nameAnswerArr.length; i++) {
+                        txt += '<span class="playerNameGuess">' + nameAnswerArr[i].name + ':</span> ' + nameAnswerArr[i].guess + '<br>';
+                    }
+                    document.getElementById('playersGuesses').innerHTML = txt;
 
-                // switch screens
-                document.getElementById('game').style.display = 'none';
-                document.getElementById('postgame').style.display = displayShow;
+                    // switch screens
+                    document.getElementById('game').style.display = 'none';
+                    document.getElementById('postgame_creative').style.display = displayShow;
+                }
+                else {
+                    // find the closest player to the answer
+                    let pName;
+                    let pAns;
+                    
+                    let index = 0;
+                    let min = Math.abs(playersAnswers[0] - answer);
+                    for (let i = 0; i < playersAnswers.length; i++) {
+                        let temp = Math.abs(playersAnswers[i] - answer);
+                        if (temp < min)
+                        {
+                            min = temp;
+                            index = i;
+                        }
+                    }
+
+                    pName = playerNames[index];
+                    pAns = playersAnswers[index];
+
+                    let distance = parseInt(Math.abs(answer - avg));
+
+                    document.getElementById('avg').innerHTML = avg;
+                    document.getElementById('dis').innerHTML = distance;
+                    document.getElementById('gameMsg').innerHTML = '<strong>' + pName + '</strong> was the closest with his answer of: ' + pAns;
+
+                    // switch screens
+                    document.getElementById('game').style.display = 'none';
+                    document.getElementById('postgame').style.display = displayShow;
+                }
+            }
+            else {
+                currentPlayerIndex++;
+                showPlayerNamePlaying(playerNames[currentPlayerIndex]);
+                document.getElementById('playerInput').value = '';
+                // input color animation
+                document.getElementById('playerInput').className = 'inputAnimationA';
+                setTimeout(() => {
+                    document.getElementById('playerInput').className = 'inputAnimationB';
+                }, 10);
             }
         }
-        else {
-            currentPlayerIndex++;
-            showPlayerNamePlaying(playerNames[currentPlayerIndex]);
-            document.getElementById('playerInput').value = '';
-        }
+
     }
 </script>
 </html>
