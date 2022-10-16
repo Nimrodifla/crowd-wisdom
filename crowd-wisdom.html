@@ -12,19 +12,22 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik&display=swap" rel="stylesheet">
 </head>
 <body>
     <div id="title">
         <h3 class="mainHeader">🌐 Crowd Wisdom 🧠</h3>
-        <p class="version">v 1.3</p>
+        <p class="version">v 1.4</p>
     </div>
     <div id="pregame" class="mode">
-        <p>Enter player names, and a question:</p>
+        <!---p>Enter:</p--->
         <input id="playerNames" placeholder="Dolce,Gabana,MatzaBright..."/><br>
         <input id="creativeQuestion" placeholder="Enter Question Here"/><br>
         <div style="display: none;"><input id="creative" type="checkbox"/><span>use database question</span><br></div>
         <br><br>
-        <button onclick="startGame()">Start Game</button><br>
+        <button class="circle" onclick="startGame()">▶️</button><br>
         <button onclick="backToStart()">Reset</button>
     </div>
     <div id="game" class="mode">
@@ -32,18 +35,18 @@
         <div id="playerInputDiv">
             <h3 id="currentPlayerName">loading...</h3>
             <input id="playerInput" placeholder="make a guess..."/><br>
-            <button onclick="submitAns()">Guess</button>
+            <button class="circle" onclick="submitAns()">✅</button>
         </div>
     </div>
     <div id="postgame_creative" class="mode">
-        <p>Your Average Is</p>
+        <p>Average:</p>
         <h1 id="creative_avg">loading...</h1>
         <p id="playersGuesses">
             loading...
         </p>
-        <button onclick="showAnswer()">Show Answer</button><br>
+        <button class="circle" onclick="showAnswer()">💡</button><br>
         <button onclick="playAgain()">Play Again</button><br>
-        <button onclick="backToStart()">Back To Start Screen</button>
+        <button onclick="backToStart()">Reset</button>
     </div>
     <div id="postgame" class="mode">
         <h3>The Answer Is</h3>
@@ -94,11 +97,11 @@
         padding: 5px;
         margin: 0;
         box-shadow: 10px 10px 40px -2px rgba(0,0,0,0.3);
-        font-family: 'Playfair Display', serif;
+        font-family: 'Rubik', sans-serif;
     }
 
     .question {
-        font-family: 'Playfair Display', serif;
+        font-family: 'Rubik', sans-serif;
     }
 
     .mode {
@@ -108,12 +111,13 @@
 
     body {
         text-align: center;
-        font-family: 'Noto Sans', sans-serif;
+        font-family: 'Rubik', sans-serif;
         margin: 0;
+        background-color: rgb(255, 236, 218);
     }
 
     button {
-        font-family: 'Noto Sans', sans-serif;
+        font-family: 'Rubik', sans-serif;
         margin-top: 10px;
         padding: 10px;
         font-size: larger;
@@ -121,19 +125,22 @@
         border-style: none;
         border-radius: 5px;
         color: black;
-        width: 50%;
+        width: 100px;
+        box-shadow: 5px 5px 20px 5px #bdbdbd;
     }
 
     input {
-        font-family: 'Noto Sans', sans-serif;
+        font-family: 'Rubik', sans-serif;
         padding: 5px;
         width: 90%;
         font-size: larger;
         border-width: 3px;
         border-color: #FC9F10;
         border-style: solid;
-        outline-color: #ffd089;
         margin-top: 10px;
+        outline: none;
+        border-radius: 10px;
+        box-shadow: 5px 5px 20px 5px #bdbdbd;
     }
 
     .inputAnimationA {
@@ -175,7 +182,7 @@
 
     .name {
         color: #FC9F10;
-        font-family: 'Playfair Display', serif;
+        font-family: 'Rubik', sans-serif;
         font-size: 2rem;
     }
 
@@ -186,6 +193,13 @@
 
     #playersGuesses {
         font-size: 1.5rem;
+    }
+
+    .circle {
+        border-radius: 50%;
+        width: 100px;
+        height: 100px;
+        font-size: 2.5rem;
     }
 
 </style>
@@ -203,6 +217,7 @@
     
     if (playerNames != undefined) {
         document.getElementById('playerNames').style.display = 'none';
+        document.getElementById('playerNames').value = playerNames; //
     }
 
     function playAgain() {
