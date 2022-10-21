@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crowd Wisdom</title>
+    <title>חוכמת ההמונים</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans&display=swap" rel="stylesheet">
@@ -18,35 +18,39 @@
 </head>
 <body>
     <div id="title">
-        <h3 class="mainHeader">🌐 Crowd Wisdom 🧠</h3>
-        <p class="version">(v 1.5) By: Nimi</p>
+        <h3 class="mainHeader">🌐 חוכמת ההמונים 🧠</h3>
+        <p class="version">(v 1.6) By: Nimi</p>
     </div>
     <div id="pregame" class="mode">
         <!---p>Enter:</p--->
-        <input id="playerNames" placeholder="Name1,Name2..."/><br>
-        <input id="creativeQuestion" placeholder="Enter Question Here"/><br>
+        <input id="playerNames" placeholder="שם,שם,אולי עוד שם..."/><br>
+        <input id="creativeQuestion" placeholder="תרביץ בשאלה"/><br>
         <div style="display: none;"><input id="creative" type="checkbox"/><span>use database question</span><br></div>
         <br><br>
         <button class="circle" onclick="startGame()">▶️</button><br>
-        <button onclick="backToStart()">Reset</button>
+        <button id="resetNamesBtn" style="display: none;" onclick="backToStart()">איפוס שחקנים</button>
+        <div class="tip">
+            <h3>💡 תן שאלה שהתשובה היא מספר</h3>
+            <p><strong>דברים כמו </strong>"כמה ארוכה רצועת החוף של ישראל",<br>"כמה אנשים נפצעים מתאונות דרכים בשנה",<br>"כמה שקלים שווה המטבע הטורקי"</p>
+        </div>
     </div>
     <div id="game" class="mode">
         <h1 id="question" class="question">#question#</h1>
         <div id="playerInputDiv">
-            <h3 id="currentPlayerName">loading...</h3>
-            <input id="playerInput" placeholder="make a guess..."/><br>
+            <h3 id="currentPlayerName">טוען...</h3>
+            <input id="playerInput" placeholder="תן ניחוש טוב"/><br>
             <button class="circle" onclick="submitAns()">✅</button>
         </div>
     </div>
     <div id="postgame_creative" class="mode">
-        <p>Average:</p>
-        <h1 id="creative_avg">loading...</h1>
+        <p>ממוצע:</p>
+        <h1 id="creative_avg">טוען...</h1>
         <p id="playersGuesses">
-            loading...
+            טוען...
         </p>
         <button class="circle" onclick="showAnswer()">💡</button><br>
-        <button onclick="playAgain()">Play Again</button><br>
-        <button onclick="backToStart()">Reset</button>
+        <button onclick="playAgain()">שחק שוב</button><br>
+        <button onclick="backToStart()">איפוס שחקנים</button>
     </div>
     <div id="postgame" class="mode">
         <h3>The Answer Is</h3>
@@ -66,6 +70,10 @@
     </div>
 </body>
 <style>
+
+    body {
+        direction: rtl;
+    }
 
     .version {
         color: #ffd089;
@@ -131,7 +139,7 @@
 
     input {
         font-family: 'Rubik', sans-serif;
-        padding: 5px;
+        padding: 9px 5px;
         width: 90%;
         font-size: larger;
         border-width: 3px;
@@ -202,6 +210,14 @@
         font-size: 2.5rem;
     }
 
+    .tip {
+        margin-top: 50px;
+        padding: 10px;
+        border-style: none;
+        border-radius: 20px;
+        background-color: LightSalmon;
+    }
+
 </style>
 <script>
 
@@ -211,13 +227,29 @@
     let playersAnswers = [];
     let playerNames = #playerNames#;
     
-    const displayShow = 'block';
+    const displayShow = 'inline-block';
     
     let GAME_MODE_CREATIVE = true;
     
     if (playerNames != undefined) {
         document.getElementById('playerNames').style.display = 'none';
+        document.getElementById('resetNamesBtn').style.display = displayShow;
         document.getElementById('playerNames').value = playerNames; //
+    }
+
+    function numberWithCommas(x) {
+        let int = parseInt(x);
+        let intCommas = int.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        let res = intCommas;
+        if (x.toString().includes('.'))
+        {
+            let afterDot = x.toString().substr(x.toString().indexOf('.'));
+            if (afterDot.length > 4)
+                afterDot = afterDot.substr(0, 4);
+            
+            res += afterDot;
+        }
+        return res;
     }
 
     function playAgain() {
@@ -243,7 +275,7 @@
     }
 
     function showPlayerNamePlaying(name) {
-        let txt = 'Now guessing: <span class="name">' + name + '</span>';
+        let txt = 'עכשיו מנחש: <span class="name">' + name + '</span>';
         document.getElementById('currentPlayerName').innerHTML = txt;
     }
 
@@ -293,8 +325,8 @@
                 temp = temp.replace(',', '');
             }
 
-            let p_answer = parseInt(temp);
-            playersAnswers.push(parseInt(p_answer));
+            let p_answer = parseFloat(temp);
+            playersAnswers.push(p_answer);
 
             // check if it is the last player answering
             if (playersCount == undefined) {
@@ -311,11 +343,11 @@
                     sum += playersAnswers[i];
                 }
 
-                let avg = parseInt(sum / playersAnswers.length);
+                let avg = parseFloat(sum / playersAnswers.length);
 
                 if (GAME_MODE_CREATIVE)
                 {
-                    document.getElementById('creative_avg').innerHTML = avg;
+                    document.getElementById('creative_avg').innerHTML = numberWithCommas(avg);
 
                     // make name & guess arr
                     let nameAnswerArr = [];
@@ -336,7 +368,7 @@
                     // show player's gueeses
                     let txt = '';
                     for (let i = 0; i < nameAnswerArr.length; i++) {
-                        txt += '<span class="playerNameGuess">' + nameAnswerArr[i].name + ':</span> ' + nameAnswerArr[i].guess + '<br>';
+                        txt += '<span class="playerNameGuess">' + nameAnswerArr[i].name + ':</span> ' + numberWithCommas(nameAnswerArr[i].guess) + '<br>';
                     }
                     document.getElementById('playersGuesses').innerHTML = txt;
 
