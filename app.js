@@ -2,6 +2,13 @@ import express from 'express';
 import fs from 'fs';
 const app = express();
 
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const meta = import.meta;
+const __filename = fileURLToPath(meta.url);
+const __dirname = dirname(__filename);
+
 const PORT = process.env.PORT || 80;
 const qanda = JSON.parse(fs.readFileSync(__dirname + '/data.json').toString());
 
